@@ -7,12 +7,35 @@
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Platforms>AnyCPU;x64;x86</Platforms>
+		<Description>OnnxRuntimeGenAI variant that removes the limitation of not being able to use CPU, Cuda, and DirectML at once.</Description>
+		<Version>0.4.0.1</Version>
+		<Title>MagicOnnxRuntimeGenAi</Title>
+		<Copyright></Copyright>
+		<PackageProjectUrl>https://github.com/magiccodingman/MagicOnnxRuntimeGenAi</PackageProjectUrl>
+		<PackageIcon>nugetIcon.jpeg</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <Compile Remove="cpu\**" />
 	  <EmbeddedResource Remove="cpu\**" />
 	  <None Remove="cpu\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\LICENSE.txt">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\nugetIcon.jpeg">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
