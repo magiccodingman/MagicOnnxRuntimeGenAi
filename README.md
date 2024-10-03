@@ -146,7 +146,7 @@ public async Task Phi3MiniDmlAndCpuResponse()
 
 ## Future Development
 
-- **CUDA Support**: Currently being integrated. Stay tuned for updates.
+- **CUDA Support**: Plans to extend the capabilities, but currently replicates what's in the original GenAI.Cuda
 - **OnnxRuntime support**: There are plans to extend the Magic protocol to the larger `OnnxRuntime` library.
 - **Automatic GenAI updates**: Automating the update process to newer versions of `OnnxRuntimeGenAI`.
 - **New Projects**: Future projects will build on this, making AI easier to use with higher-level abstractions.
