@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicOnnxRuntimeGenAi", "Ma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MagicOnnxRuntimeGenAi.NetCore", "Test.MagicOnnxRuntimeGenAi.NetCore\Test.MagicOnnxRuntimeGenAi.NetCore.csproj", "{50D04C08-6509-40A2-8255-CC7FBC0EB330}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MagicOnnxRuntimeGenAi.CLI", "Test.MagicOnnxRuntimeGenAi.CLI\Test.MagicOnnxRuntimeGenAi.CLI.csproj", "{BFFC089C-5246-47CB-91C9-84BF4CE323AD}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.MagicAiLogic", "Test.MagicAiLogic\Test.MagicAiLogic.csproj", "{7EC7C5A7-30EC-4ACA-BD51-50375A0DFD26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MagicAiLogic", "Test.MagicAiLogic\Test.MagicAiLogic.csproj", "{7EC7C5A7-30EC-4ACA-BD51-50375A0DFD26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,26 +63,6 @@ Global
 		{50D04C08-6509-40A2-8255-CC7FBC0EB330}.Release|x64.Build.0 = Release|x64
 		{50D04C08-6509-40A2-8255-CC7FBC0EB330}.Release|x86.ActiveCfg = Release|x86
 		{50D04C08-6509-40A2-8255-CC7FBC0EB330}.Release|x86.Build.0 = Release|x86
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|ARM.Build.0 = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|x64.ActiveCfg = Debug|x64
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|x64.Build.0 = Debug|x64
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|x86.ActiveCfg = Debug|x86
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Debug|x86.Build.0 = Debug|x86
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|ARM.ActiveCfg = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|ARM.Build.0 = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|ARM64.Build.0 = Release|Any CPU
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|x64.ActiveCfg = Release|x64
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|x64.Build.0 = Release|x64
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|x86.ActiveCfg = Release|x86
-		{BFFC089C-5246-47CB-91C9-84BF4CE323AD}.Release|x86.Build.0 = Release|x86
 		{7EC7C5A7-30EC-4ACA-BD51-50375A0DFD26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7EC7C5A7-30EC-4ACA-BD51-50375A0DFD26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7EC7C5A7-30EC-4ACA-BD51-50375A0DFD26}.Debug|ARM.ActiveCfg = Debug|Any CPU
