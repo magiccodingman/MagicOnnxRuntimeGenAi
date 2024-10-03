@@ -33,14 +33,6 @@ The original `OnnxRuntimeGenAI` library imposes limitations on using hardware ac
 - Creating an ASP.NET REST API that manages multiple AI models across various hardware environments.
 - Maintaining flexibility and scalability while minimizing server-side dependencies, reducing latency, and improving control.
 
-## Installation
-
-You can install **MagicOnnxRuntimeGenAI** by downloading the respective release from the GitHub repository. The repository is structured to avoid DLL overwriting by organizing files into separate folders: `cpu`, `cuda`, and `dml`.
-
-```sh
-git clone https://github.com/your-repo/MagicOnnxRuntimeGenAI.git
-```
-
 ### Library Structure
 
 The key libraries (`cpu`, `cuda`, `dml`) are separated into different folders, avoiding conflicts due to identical DLL names. This allows you to utilize all three in a single application. 
