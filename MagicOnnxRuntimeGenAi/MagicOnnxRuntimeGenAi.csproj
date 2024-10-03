@@ -10,17 +10,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-		<PackageReference Include="System.Memory" Version="4.5.5" />
-		<None Update="cpu\**\*;cuda\**\*;dml\**\*">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
+	  <Compile Remove="cpu\**" />
+	  <EmbeddedResource Remove="cpu\**" />
+	  <None Remove="cpu\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="DirectML.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="System.Memory" Version="4.5.5" />
 	</ItemGroup>
 
 </Project>
