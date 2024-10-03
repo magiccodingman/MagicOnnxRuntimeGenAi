@@ -73,6 +73,38 @@ namespace Test.MagicAiLogic.Helpers
             return baseDirectory;
         }
 
+        public static async Task<string> GetPhi3MiniCuda()
+        {
+            // Define the base folder
+            string baseDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Ai_Models", "cuda");
+
+            // Ensure the directory exists
+            EnsureDirectoryExists(baseDirectory);
+
+            // List of URLs to download
+            string[] urls = new string[]
+            {
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/added_tokens.json",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/config.json",
+                "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/configuration_phi3.py",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/genai_config.json",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/phi3-mini-4k-instruct-cuda-int4-rtn-block-32.onnx",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/phi3-mini-4k-instruct-cuda-int4-rtn-block-32.onnx.data",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/special_tokens_map.json",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/tokenizer.json",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/tokenizer.model",
+                  "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-onnx/blob/main/cuda/cuda-int4-rtn-block-32/tokenizer_config.json"
+            };
+
+            // Download each file to the specified folder
+            foreach (var url in urls)
+            {
+                await DownloadFileIfNotExists(url, baseDirectory);
+            }
+
+            return baseDirectory;
+        }
+
         // Method to ensure the directory exists
         static void EnsureDirectoryExists(string path)
         {

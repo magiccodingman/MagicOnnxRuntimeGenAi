@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MagicAiLogic", "Test.M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicOnnxRuntimeGenAi.Cuda", "MagicOnnxRuntimeGenAi.Cuda\MagicOnnxRuntimeGenAi.Cuda.csproj", "{94572B83-0AB3-467C-BCC7-B698348CA699}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicOnnxRuntimeGenAi.DirectML", "MagicOnnxRuntimeGenAi.DirectML\MagicOnnxRuntimeGenAi.DirectML.csproj", "{F5876150-DEDA-4F38-859B-FA2C64818125}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicOnnxRuntimeGenAi.DirectML", "MagicOnnxRuntimeGenAi.DirectML\MagicOnnxRuntimeGenAi.DirectML.csproj", "{F5876150-DEDA-4F38-859B-FA2C64818125}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicOnnxRuntimeGenAi.Cpu", "MagicOnnxRuntimeGenAi.Cpu\MagicOnnxRuntimeGenAi.Cpu.csproj", "{48D6C792-F3CD-4885-8B88-67A91738B4BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicOnnxRuntimeGenAi.Cpu", "MagicOnnxRuntimeGenAi.Cpu\MagicOnnxRuntimeGenAi.Cpu.csproj", "{48D6C792-F3CD-4885-8B88-67A91738B4BB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnnxLibraryConverter", "OnnxLibraryConverter\OnnxLibraryConverter.csproj", "{4308FAF0-6130-4751-903B-926FC97051FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,6 +151,26 @@ Global
 		{48D6C792-F3CD-4885-8B88-67A91738B4BB}.Release|x64.Build.0 = Release|Any CPU
 		{48D6C792-F3CD-4885-8B88-67A91738B4BB}.Release|x86.ActiveCfg = Release|Any CPU
 		{48D6C792-F3CD-4885-8B88-67A91738B4BB}.Release|x86.Build.0 = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|ARM.Build.0 = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|x64.Build.0 = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Debug|x86.Build.0 = Debug|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|ARM.ActiveCfg = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|ARM.Build.0 = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|ARM64.Build.0 = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|x64.Build.0 = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|x86.ActiveCfg = Release|Any CPU
+		{4308FAF0-6130-4751-903B-926FC97051FE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

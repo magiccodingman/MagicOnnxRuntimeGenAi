@@ -56,6 +56,24 @@ namespace Test.MagicOnnxRuntimeGenAi.NetCore
         }
 
         /// <summary>
+        /// Cuda run
+        /// </summary>
+        /// <returns></returns>
+        [Fact]
+        public async Task Phi3MiniCudaResponse()
+        {
+            var model = new MagicModel(GlobalSetup.CudaModelPath);
+            var tokenizer = new MagicTokenizer(model);
+
+            string systemPrompt = @"You're a helpful AI assistant.";
+            string userPrompt = @"Write a very short story about a goblin becoming a hero and saving the princess.";
+            var aiResponse = await new CallAi().GenerateAIResponseV6(model, tokenizer, systemPrompt, userPrompt, null, 4000, ConsoleColor.Red);
+            _output.WriteLine(aiResponse.UpdatedHistory.LastOrDefault().aiResponse);
+            var endAiMessage = aiResponse.UpdatedHistory.LastOrDefault().aiResponse;
+            Assert.True(string.IsNullOrWhiteSpace(endAiMessage) == false);
+        }
+
+        /// <summary>
         /// 2 models running in parallel. One in the GPU/NPU the other on only the CPU.
         /// </summary>
         /// <returns></returns>

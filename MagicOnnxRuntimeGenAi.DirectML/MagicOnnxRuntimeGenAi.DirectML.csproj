@@ -19,6 +19,9 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<None Update="D3D12Core.dll">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="DirectML.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
