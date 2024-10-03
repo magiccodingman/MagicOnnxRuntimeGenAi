@@ -7,12 +7,13 @@
 		<LangVersion>preview</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Description>OnnxRuntimeGenAI.Cuda variant that removes the limitation of not being able to use CPU, Cuda, and DirectML at once.</Description>
-		<Version>0.4.0.1</Version>
+		<Version>0.4.0.2</Version>
 		<Title>MagicOnnxRuntimeGenAi.Cuda</Title>
 		<PackageProjectUrl>https://github.com/magiccodingman/MagicOnnxRuntimeGenAi</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageIcon>nugetIcon.jpeg</PackageIcon>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -35,8 +36,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="cuda\**\*">
+		<None Include="cuda\**\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>contentFiles\any\any\cuda</PackagePath>
+			<!-- Package path inside NuGet -->
 		</None>
 	</ItemGroup>
 

@@ -7,13 +7,14 @@
 	  <LangVersion>preview</LangVersion>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Description>OnnxRuntimeGenAI.DirectML variant that removes the limitation of not being able to use CPU, Cuda, and DirectML at once.</Description>
-	  <Version>0.4.0.1</Version>
+	  <Version>0.4.0.2</Version>
 	  <Title>MagicOnnxRuntimeGenAi.DirectML</Title>
 	  <Copyright></Copyright>
 	  <PackageProjectUrl>https://github.com/magiccodingman/MagicOnnxRuntimeGenAi</PackageProjectUrl>
 	  <PackageIcon>nugetIcon.jpeg</PackageIcon>
 	  <PackageReadmeFile>README.md</PackageReadmeFile>
 	  <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,18 +36,25 @@
     <ProjectReference Include="..\MagicOnnxRuntimeGenAi\MagicOnnxRuntimeGenAi.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-	  <None Update="dml\**\*">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-  </ItemGroup>
-
 	<ItemGroup>
-		<None Update="D3D12Core.dll">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<!-- Include all files in the 'dml' folder -->
+		<None Update="dml\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>contentFiles\any\any\dml</PackagePath>
 		</None>
+
+		<!-- Include specific DLL files -->
+		<None Update="D3D12Core.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>contentFiles\any\any</PackagePath>
+		</None>
+
 		<None Update="DirectML.dll">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Pack>true</Pack>
+			<PackagePath>contentFiles\any\any</PackagePath>
 		</None>
 	</ItemGroup>
 </Project>
