@@ -4,13 +4,13 @@
 
 ### Nuget
 CPU:
-https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cpu/0.4.0.1
+https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cpu/0.4.0.2
 
 DirectML:
-https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.1
+https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.2
 
 Cuda:
-https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cuda/0.4.0.1
+https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cuda/0.4.0.2
 
 ## Features
 
