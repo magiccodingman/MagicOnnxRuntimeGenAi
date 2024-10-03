@@ -19,9 +19,15 @@ namespace MagicOnnxRuntimeGenAi.Models
         }
         internal IntPtr Handle { get { return _imagesHandle; } }
 
-        public MagicImages Load(string imagePath)
+        public MagicImages Load(string[] imagePaths)
         {
-            new MagicResult(_MagicNativeMethods).VerifySuccess(_MagicNativeMethods.OgaLoadImage(MagicStringUtils.ToUtf8(imagePath), out IntPtr imagesHandle));
+            new MagicResult(_MagicNativeMethods).VerifySuccess(_MagicNativeMethods.OgaCreateStringArray(out IntPtr stringArray));
+            foreach (string imagePath in imagePaths)
+            {
+                new MagicResult(_MagicNativeMethods).VerifySuccess(_MagicNativeMethods.OgaStringArrayAddString(stringArray, MagicStringUtils.ToUtf8(imagePath)));
+            }
+            new MagicResult(_MagicNativeMethods).VerifySuccess(_MagicNativeMethods.OgaLoadImages(stringArray, out IntPtr imagesHandle));
+            _MagicNativeMethods.OgaDestroyStringArray(stringArray);
             return new MagicImages(_Model, imagesHandle);
         }
 

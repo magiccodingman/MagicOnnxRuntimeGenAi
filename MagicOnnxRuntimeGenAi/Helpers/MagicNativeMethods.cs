@@ -1,505 +1,407 @@
-﻿using MagicOnnxRuntimeGenAi.Helpers;
+
 using System;
-using System.IO;
-using System.Runtime.InteropServices;
 
 namespace MagicOnnxRuntimeGenAi
 {
-    public class MagicNativeMethods
+//GenAI Nuget Version: 0.4.0
+public partial class MagicNativeMethods
+{
+    public MagicNativeMethods(HardwareType hardwareType)
     {
-        private string _libraryPath;
-        private HardwareType _hardwareType;
-
-
-        public MagicNativeMethods(HardwareType hardwareType)
-        {
-            _hardwareType = hardwareType;
-            // Initialize with the default hardware type (assuming CPU as default)
-            //SetLibraryPath(HardwareType.cpu);
-            SetLibraryPath();
-        }
-
-        // Set the library path based on the hardware type and platform
-        public void SetLibraryPath()
-        {
-            string baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string runtimeFolder = string.Empty;
-
-            switch (_hardwareType)
-            {
-                case HardwareType.cpu:
-                    runtimeFolder = NativeLibraryLoader.GetNativeDllPath(Path.Combine(baseDirectory, "cpu"));
-                    break;
-                case HardwareType.cuda:
-                    runtimeFolder = NativeLibraryLoader.GetNativeDllPath(Path.Combine(baseDirectory, "cuda"));
-                    break;
-                case HardwareType.dml:
-                    runtimeFolder = NativeLibraryLoader.GetNativeDllPath(Path.Combine(baseDirectory, "dml"));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(_hardwareType), "Unsupported hardware type");
-            }
-
-            // Detect OS platform
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                _libraryPath = Path.Combine(runtimeFolder, "onnxruntime-genai.dll");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                _libraryPath = Path.Combine(runtimeFolder, "libonnxruntime-genai.so");
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                _libraryPath = Path.Combine(runtimeFolder, "libonnxruntime-genai.dylib");
-            }
-#if __ANDROID__
-else
-{
-    _libraryPath = Path.Combine(runtimeFolder, "onnxruntime.aar"); // Handle .aar differently as it's a package
-}
-#elif __IOS__
-else
-{
-    _libraryPath = Path.Combine(runtimeFolder, "onnxruntime.xcframework"); // Handle .xcframework differently
-}
-#else
-            else
-            {
-                throw new PlatformNotSupportedException("Unsupported platform for onnxruntime-genai");
-            }
-#endif
-
-            if (!File.Exists(_libraryPath))
-            {
-                throw new DllNotFoundException($"Native library not found at {_libraryPath}");
-            }
-        }
-
-        // Declare a delegate for dynamically loading native methods
-        private delegate IntPtr OgaTokenizerEncodeDelegate(IntPtr tokenizer, byte[] strings, IntPtr sequences);
-        public unsafe delegate IntPtr OgaTokenizerDecodeDelegate(IntPtr tokenizer, int* sequence, UIntPtr sequenceLength, out IntPtr outStr);
-        private delegate void OgaDestroyStringDelegate(IntPtr str);
-        private delegate IntPtr OgaCreateTokenizerStreamDelegate(IntPtr tokenizer, out IntPtr tokenizerStream);
-        private delegate IntPtr OgaCreateTokenizerStreamFromProcessorDelegate(IntPtr tprocessor, out IntPtr tokenizerStream);
-        private delegate void OgaDestroyTokenizerStreamDelegate(IntPtr tokenizerStream);
-        private delegate IntPtr OgaTokenizerStreamDecodeDelegate(IntPtr tokenizerStream, int token, out IntPtr outStr);
-        private delegate IntPtr OgaCreateTensorFromBufferDelegate(IntPtr data, long[] shape_dims, UIntPtr shape_dims_count, ElementType element_Type, out IntPtr tensor);
-        private delegate void OgaDestroyTensorDelegate(IntPtr tensor);
-        private delegate IntPtr OgaTensorGetTypeDelegate(IntPtr tensor, out ElementType element_type);
-        private delegate IntPtr OgaTensorGetShapeRankDelegate(IntPtr tensor, out UIntPtr rank);
-        private delegate IntPtr OgaTensorGetShapeDelegate(IntPtr tensor, long[] shape_dims, UIntPtr shape_dims_count);
-        private delegate IntPtr OgaTensorGetDataDelegate(IntPtr tensor, out IntPtr data);
-        private delegate IntPtr OgaSetCurrentGpuDeviceIdDelegate(int device_id);
-        private delegate IntPtr OgaGetCurrentGpuDeviceIdDelegate(out IntPtr device_id);
-        private delegate void OgaShutdownDelegate();
-        private delegate IntPtr OgaCreateMultiModalProcessorDelegate(IntPtr model, out IntPtr processor);
-        private delegate void OgaDestroyMultiModalProcessorDelegate(IntPtr processor);
-        private delegate IntPtr OgaProcessorProcessImagesDelegate(IntPtr processor, byte[] prompt, IntPtr images, out IntPtr named_tensors);
-        public unsafe delegate IntPtr OgaProcessorDecodeDelegate(IntPtr processor, int* sequence, UIntPtr sequenceLength, out IntPtr outStr);
-        private delegate IntPtr OgaLoadImageDelegate(byte[] image_path, out IntPtr images);
-        private delegate void OgaDestroyImagesDelegate(IntPtr images);
-        private delegate void OgaDestroyNamedTensorsDelegate(IntPtr named_tensors);
-#if NET8_0_OR_GREATER
-private T GetNativeMethod<T>(string methodName) where T : Delegate
-{
-    IntPtr libraryHandle = NativeLibrary.Load(_libraryPath);
-    IntPtr methodPtr = NativeLibrary.GetExport(libraryHandle, methodName);
-    return Marshal.GetDelegateForFunctionPointer<T>(methodPtr);
-}
-#else
-        public T GetNativeMethod<T>(string methodName) where T : Delegate
-        {
-            // Load the library (keep it loaded for the entire app lifecycle, or track when to free it)
-            IntPtr libraryHandle = NativeLibraryLoaderHelper.LoadNativeLibrary(_libraryPath);
-
-            if (libraryHandle == IntPtr.Zero)
-            {
-                throw new InvalidOperationException($"Failed to load library: {_libraryPath}");
-            }
-
-            // Get the function pointer for the native method
-            IntPtr methodPtr = NativeLibraryLoaderHelper.GetNativeMethodPointer(libraryHandle, methodName);
-
-            if (methodPtr == IntPtr.Zero)
-            {
-                NativeLibraryLoaderHelper.FreeNativeLibrary(libraryHandle);
-                throw new MissingMethodException($"Failed to find method: {methodName}");
-            }
-
-            // Convert the function pointer to a delegate of type T
-            T methodDelegate = Marshal.GetDelegateForFunctionPointer<T>(methodPtr);
-
-            // Don't free the library here, because the delegate will still rely on the library being loaded
-            // Free it only when the application is done using it, or manage the lifetime separately
-
-            return methodDelegate;
-        }
-#endif
-
-        public IntPtr OgaTokenizerEncode(IntPtr tokenizer, byte[] strings, IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaTokenizerEncodeDelegate>("OgaTokenizerEncode");
-            return method(tokenizer, strings, sequences);
-        }
-
-        public unsafe IntPtr OgaTokenizerDecode(IntPtr tokenizer, int* sequence, UIntPtr sequenceLength, out IntPtr outStr)
-        {
-            var method = GetNativeMethod<OgaTokenizerDecodeDelegate>("OgaTokenizerDecode");
-            return method(tokenizer, sequence, sequenceLength, out outStr);
-        }
-
-        public void OgaDestroyString(IntPtr str)
-        {
-            var method = GetNativeMethod<OgaDestroyStringDelegate>("OgaDestroyString");
-            method(str);
-        }
-
-        public IntPtr OgaCreateTokenizerStream(IntPtr tokenizer, out IntPtr tokenizerStream)
-        {
-            var method = GetNativeMethod<OgaCreateTokenizerStreamDelegate>("OgaCreateTokenizerStream");
-            return method(tokenizer, out tokenizerStream);
-        }
-
-        public IntPtr OgaCreateTokenizerStreamFromProcessor(IntPtr processor, out IntPtr tokenizerStream)
-        {
-            var method = GetNativeMethod<OgaCreateTokenizerStreamFromProcessorDelegate>("OgaCreateTokenizerStreamFromProcessor");
-            return method(processor, out tokenizerStream);
-        }
-
-        public void OgaDestroyTokenizerStream(IntPtr tokenizerStream)
-        {
-            var method = GetNativeMethod<OgaDestroyTokenizerStreamDelegate>("OgaDestroyTokenizerStream");
-            method(tokenizerStream);
-        }
-
-        public IntPtr OgaTokenizerStreamDecode(IntPtr tokenizerStream, int token, out IntPtr outStr)
-        {
-            var method = GetNativeMethod<OgaTokenizerStreamDecodeDelegate>("OgaTokenizerStreamDecode");
-            return method(tokenizerStream, token, out outStr);
-        }
-
-        public IntPtr OgaCreateTensorFromBuffer(IntPtr data, long[] shape_dims, UIntPtr shape_dims_count, ElementType element_Type, out IntPtr tensor)
-        {
-            var method = GetNativeMethod<OgaCreateTensorFromBufferDelegate>("OgaCreateTensorFromBuffer");
-            return method(data, shape_dims, shape_dims_count, element_Type, out tensor);
-        }
-
-        public void OgaDestroyTensor(IntPtr tensor)
-        {
-            var method = GetNativeMethod<OgaDestroyTensorDelegate>("OgaDestroyTensor");
-            method(tensor);
-        }
-
-        public IntPtr OgaTensorGetType(IntPtr tensor, out ElementType element_type)
-        {
-            var method = GetNativeMethod<OgaTensorGetTypeDelegate>("OgaTensorGetType");
-            return method(tensor, out element_type);
-        }
-
-        public IntPtr OgaTensorGetShapeRank(IntPtr tensor, out UIntPtr rank)
-        {
-            var method = GetNativeMethod<OgaTensorGetShapeRankDelegate>("OgaTensorGetShapeRank");
-            return method(tensor, out rank);
-        }
-
-        public IntPtr OgaTensorGetShape(IntPtr tensor, long[] shape_dims, UIntPtr shape_dims_count)
-        {
-            var method = GetNativeMethod<OgaTensorGetShapeDelegate>("OgaTensorGetShape");
-            return method(tensor, shape_dims, shape_dims_count);
-        }
-
-        public IntPtr OgaTensorGetData(IntPtr tensor, out IntPtr data)
-        {
-            var method = GetNativeMethod<OgaTensorGetDataDelegate>("OgaTensorGetData");
-            return method(tensor, out data);
-        }
-
-        public IntPtr OgaSetCurrentGpuDeviceId(int device_id)
-        {
-            var method = GetNativeMethod<OgaSetCurrentGpuDeviceIdDelegate>("OgaSetCurrentGpuDeviceId");
-            return method(device_id);
-        }
-
-        public IntPtr OgaGetCurrentGpuDeviceId(out IntPtr device_id)
-        {
-            var method = GetNativeMethod<OgaGetCurrentGpuDeviceIdDelegate>("OgaGetCurrentGpuDeviceId");
-            return method(out device_id);
-        }
-
-        public void OgaShutdown()
-        {
-            var method = GetNativeMethod<OgaShutdownDelegate>("OgaShutdown");
-            method();
-        }
-
-        public IntPtr OgaCreateMultiModalProcessor(IntPtr model, out IntPtr processor)
-        {
-            var method = GetNativeMethod<OgaCreateMultiModalProcessorDelegate>("OgaCreateMultiModalProcessor");
-            return method(model, out processor);
-        }
-
-        public void OgaDestroyMultiModalProcessor(IntPtr processor)
-        {
-            var method = GetNativeMethod<OgaDestroyMultiModalProcessorDelegate>("OgaDestroyMultiModalProcessor");
-            method(processor);
-        }
-
-        public IntPtr OgaProcessorProcessImages(IntPtr processor, byte[] prompt, IntPtr images, out IntPtr named_tensors)
-        {
-            var method = GetNativeMethod<OgaProcessorProcessImagesDelegate>("OgaProcessorProcessImages");
-            return method(processor, prompt, images, out named_tensors);
-        }
-
-        public unsafe IntPtr OgaProcessorDecode(IntPtr processor, int* sequence, UIntPtr sequenceLength, out IntPtr outStr)
-        {
-            var method = GetNativeMethod<OgaProcessorDecodeDelegate>("OgaProcessorDecode");
-            return method(processor, sequence, sequenceLength, out outStr);
-        }
-
-        public IntPtr OgaLoadImage(byte[] image_path, out IntPtr images)
-        {
-            var method = GetNativeMethod<OgaLoadImageDelegate>("OgaLoadImage");
-            return method(image_path, out images);
-        }
-
-        public void OgaDestroyImages(IntPtr images)
-        {
-            var method = GetNativeMethod<OgaDestroyImagesDelegate>("OgaDestroyImages");
-            method(images);
-        }
-
-        public void OgaDestroyNamedTensors(IntPtr named_tensors)
-        {
-            var method = GetNativeMethod<OgaDestroyNamedTensorsDelegate>("OgaDestroyNamedTensors");
-            method(named_tensors);
-        }
-
-        private delegate IntPtr OgaResultGetErrorDelegate(IntPtr result);
-
-        public IntPtr OgaResultGetError(IntPtr result)
-        {
-            var method = GetNativeMethod<OgaResultGetErrorDelegate>("OgaResultGetError");
-            return method(result);
-        }
-
-        private delegate IntPtr OgaSetLogBoolDelegate(byte[] name, bool value);
-
-        public IntPtr OgaSetLogBool(byte[] name, bool value)
-        {
-            var method = GetNativeMethod<OgaSetLogBoolDelegate>("OgaSetLogBool");
-            return method(name, value);
-        }
-
-        private delegate IntPtr OgaSetLogStringDelegate(byte[] name, byte[] value);
-
-        public IntPtr OgaSetLogString(byte[] name, byte[] value)
-        {
-            var method = GetNativeMethod<OgaSetLogStringDelegate>("OgaSetLogString");
-            return method(name, value);
-        }
-
-
-        private delegate void OgaDestroyResultDelegate(IntPtr result);
-
-        public void OgaDestroyResult(IntPtr result)
-        {
-            var method = GetNativeMethod<OgaDestroyResultDelegate>("OgaDestroyResult");
-            method(result);
-        }
-        private delegate void OgaDestroyModelDelegate(IntPtr model);
-
-        public void OgaDestroyModel(IntPtr model)
-        {
-            var method = GetNativeMethod<OgaDestroyModelDelegate>("OgaDestroyModel");
-            method(model);
-        }
-        private delegate IntPtr OgaCreateGeneratorParamsDelegate(IntPtr model, out IntPtr generatorParams);
-
-        public IntPtr OgaCreateGeneratorParams(IntPtr model, out IntPtr generatorParams)
-        {
-            var method = GetNativeMethod<OgaCreateGeneratorParamsDelegate>("OgaCreateGeneratorParams");
-            return method(model, out generatorParams);
-        }
-
-        private delegate void OgaDestroyGeneratorDelegate(IntPtr generatorParams);
-
-        public void OgaDestroyGenerator(IntPtr generatorParams)
-        {
-            var method = GetNativeMethod<OgaDestroyGeneratorDelegate>("OgaDestroyGenerator");
-            method(generatorParams);
-        }
-
-        private delegate void OgaDestroyGeneratorParamsDelegate(IntPtr generatorParams);
-
-        public void OgaDestroyGeneratorParams(IntPtr generatorParams)
-        {
-            var method = GetNativeMethod<OgaDestroyGeneratorParamsDelegate>("OgaDestroyGeneratorParams");
-            method(generatorParams);
-        }
-
-        private delegate IntPtr OgaGeneratorParamsSetSearchNumberDelegate(IntPtr generatorParams, byte[] searchOption, double value);
-
-        public IntPtr OgaGeneratorParamsSetSearchNumber(IntPtr generatorParams, byte[] searchOption, double value)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetSearchNumberDelegate>("OgaGeneratorParamsSetSearchNumber");
-            return method(generatorParams, searchOption, value);
-        }
-
-        private delegate IntPtr OgaGeneratorParamsSetSearchBoolDelegate(IntPtr generatorParams, byte[] searchOption, bool value);
-
-        public IntPtr OgaGeneratorParamsSetSearchBool(IntPtr generatorParams, byte[] searchOption, bool value)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetSearchBoolDelegate>("OgaGeneratorParamsSetSearchBool");
-            return method(generatorParams, searchOption, value);
-        }
-        private delegate IntPtr OgaGeneratorParamsTryGraphCaptureWithMaxBatchSizeDelegate(IntPtr generatorParams, int maxBatchSize);
-
-        public IntPtr OgaGeneratorParamsTryGraphCaptureWithMaxBatchSize(IntPtr generatorParams, int maxBatchSize)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsTryGraphCaptureWithMaxBatchSizeDelegate>("OgaGeneratorParamsTryGraphCaptureWithMaxBatchSize");
-            return method(generatorParams, maxBatchSize);
-        }
-
-        private unsafe delegate IntPtr OgaGeneratorParamsSetInputIDsDelegate(IntPtr generatorParams, int* inputIDs, UIntPtr inputIDsCount, UIntPtr sequenceLength, UIntPtr batchSize);
-
-        public unsafe IntPtr OgaGeneratorParamsSetInputIDs(IntPtr generatorParams, int* inputIDs, UIntPtr inputIDsCount, UIntPtr sequenceLength, UIntPtr batchSize)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetInputIDsDelegate>("OgaGeneratorParamsSetInputIDs");
-            return method(generatorParams, inputIDs, inputIDsCount, sequenceLength, batchSize);
-        }
-
-        private delegate IntPtr OgaCreateModelDelegate(byte[] configPath, out IntPtr model);
-
-        public IntPtr OgaCreateModel(byte[] configPath, out IntPtr model)
-        {
-            var method = GetNativeMethod<OgaCreateModelDelegate>("OgaCreateModel");
-            return method(configPath, out model);
-        }
-        private delegate IntPtr OgaGeneratorParamsSetInputSequencesDelegate(IntPtr generatorParams, IntPtr sequences);
-
-        public IntPtr OgaGeneratorParamsSetInputSequences(IntPtr generatorParams, IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetInputSequencesDelegate>("OgaGeneratorParamsSetInputSequences");
-            return method(generatorParams, sequences);
-        }
-
-        private delegate IntPtr OgaGeneratorParamsSetModelInputDelegate(IntPtr generatorParams, byte[] name, IntPtr tensor);
-
-        public IntPtr OgaGeneratorParamsSetModelInput(IntPtr generatorParams, byte[] name, IntPtr tensor)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetModelInputDelegate>("OgaGeneratorParamsSetModelInput");
-            return method(generatorParams, name, tensor);
-        }
-
-        private delegate IntPtr OgaGeneratorParamsSetInputsDelegate(IntPtr generatorParams, IntPtr named_tensors);
-
-        public IntPtr OgaGeneratorParamsSetInputs(IntPtr generatorParams, IntPtr named_tensors)
-        {
-            var method = GetNativeMethod<OgaGeneratorParamsSetInputsDelegate>("OgaGeneratorParamsSetInputs");
-            return method(generatorParams, named_tensors);
-        }
-        private delegate IntPtr OgaCreateGeneratorDelegate(IntPtr model, IntPtr generatorParams, out IntPtr generator);
-
-        public IntPtr OgaCreateGenerator(IntPtr model, IntPtr generatorParams, out IntPtr generator)
-        {
-            var method = GetNativeMethod<OgaCreateGeneratorDelegate>("OgaCreateGenerator");
-            return method(model, generatorParams, out generator);
-        }
-
-        private delegate bool OgaGenerator_IsDoneDelegate(IntPtr generator);
-
-        public bool OgaGenerator_IsDone(IntPtr generator)
-        {
-            var method = GetNativeMethod<OgaGenerator_IsDoneDelegate>("OgaGenerator_IsDone");
-            return method(generator);
-        }
-
-        private delegate IntPtr OgaGenerator_ComputeLogitsDelegate(IntPtr generator);
-
-        public IntPtr OgaGenerator_ComputeLogits(IntPtr generator)
-        {
-            var method = GetNativeMethod<OgaGenerator_ComputeLogitsDelegate>("OgaGenerator_ComputeLogits");
-            return method(generator);
-        }
-        private delegate IntPtr OgaGenerator_GenerateNextTokenDelegate(IntPtr generator);
-
-        public IntPtr OgaGenerator_GenerateNextToken(IntPtr generator)
-        {
-            var method = GetNativeMethod<OgaGenerator_GenerateNextTokenDelegate>("OgaGenerator_GenerateNextToken");
-            return method(generator);
-        }
-        private delegate UIntPtr OgaGenerator_GetSequenceCountDelegate(IntPtr generator, UIntPtr index);
-
-        public UIntPtr OgaGenerator_GetSequenceCount(IntPtr generator, UIntPtr index)
-        {
-            var method = GetNativeMethod<OgaGenerator_GetSequenceCountDelegate>("OgaGenerator_GetSequenceCount");
-            return method(generator, index);
-        }
-        private delegate IntPtr OgaGenerator_GetSequenceDataDelegate(IntPtr generator, UIntPtr index);
-
-        public IntPtr OgaGenerator_GetSequenceData(IntPtr generator, UIntPtr index)
-        {
-            var method = GetNativeMethod<OgaGenerator_GetSequenceDataDelegate>("OgaGenerator_GetSequenceData");
-            return method(generator, index);
-        }
-        private delegate IntPtr OgaCreateSequencesDelegate(out IntPtr sequences);
-
-        public IntPtr OgaCreateSequences(out IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaCreateSequencesDelegate>("OgaCreateSequences");
-            return method(out sequences);
-        }
-        private delegate void OgaDestroySequencesDelegate(IntPtr sequences);
-
-        public void OgaDestroySequences(IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaDestroySequencesDelegate>("OgaDestroySequences");
-            method(sequences);
-        }
-        private delegate UIntPtr OgaSequencesCountDelegate(IntPtr sequences);
-
-        public UIntPtr OgaSequencesCount(IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaSequencesCountDelegate>("OgaSequencesCount");
-            return method(sequences);
-        }
-        private delegate UIntPtr OgaSequencesGetSequenceCountDelegate(IntPtr sequences, UIntPtr sequenceIndex);
-
-        public UIntPtr OgaSequencesGetSequenceCount(IntPtr sequences, UIntPtr sequenceIndex)
-        {
-            var method = GetNativeMethod<OgaSequencesGetSequenceCountDelegate>("OgaSequencesGetSequenceCount");
-            return method(sequences, sequenceIndex);
-        }
-        private delegate IntPtr OgaSequencesGetSequenceDataDelegate(IntPtr sequences, UIntPtr sequenceIndex);
-
-        public IntPtr OgaSequencesGetSequenceData(IntPtr sequences, UIntPtr sequenceIndex)
-        {
-            var method = GetNativeMethod<OgaSequencesGetSequenceDataDelegate>("OgaSequencesGetSequenceData");
-            return method(sequences, sequenceIndex);
-        }
-        private delegate IntPtr OgaGenerateDelegate(IntPtr model, IntPtr generatorParams, out IntPtr sequences);
-
-        public IntPtr OgaGenerate(IntPtr model, IntPtr generatorParams, out IntPtr sequences)
-        {
-            var method = GetNativeMethod<OgaGenerateDelegate>("OgaGenerate");
-            return method(model, generatorParams, out sequences);
-        }
-
-        private delegate IntPtr OgaCreateTokenizerDelegate(IntPtr model, out IntPtr tokenizer);
-
-        public IntPtr OgaCreateTokenizer(IntPtr model, out IntPtr tokenizer)
-        {
-            var method = GetNativeMethod<OgaCreateTokenizerDelegate>("OgaCreateTokenizer");
-            return method(model, out tokenizer);
-        }
-        private delegate void OgaDestroyTokenizerDelegate(IntPtr tokenizer);
-
-        public void OgaDestroyTokenizer(IntPtr tokenizer)
-        {
-            var method = GetNativeMethod<OgaDestroyTokenizerDelegate>("OgaDestroyTokenizer");
-            method(tokenizer);
-        }
-
+        _hardwareType = hardwareType;
+        SetLibraryPath();
     }
+
+    private delegate IntPtr /* const char* */ OgaResultGetErrorDelegate(IntPtr /* const OgaResult* */ result);
+    public IntPtr /* const char* */ OgaResultGetError(IntPtr /* const OgaResult* */ result)
+    {
+        var method = GetNativeMethod<OgaResultGetErrorDelegate>("OgaResultGetError");
+        return method(result);
+    }
+
+    private delegate IntPtr /* OgaResult */ OgaSetLogBoolDelegate(byte[] /* const char* */ name, bool value);
+    public IntPtr /* OgaResult */ OgaSetLogBool(byte[] /* const char* */ name, bool value)
+    {
+        var method = GetNativeMethod<OgaSetLogBoolDelegate>("OgaSetLogBool");
+        return method(name, value);
+    }
+
+    private delegate IntPtr /* OgaResult */ OgaSetLogStringDelegate(byte[] /* const char* */ name, byte[] /* const char* */ value);
+    public IntPtr /* OgaResult */ OgaSetLogString(byte[] /* const char* */ name, byte[] /* const char* */ value)
+    {
+        var method = GetNativeMethod<OgaSetLogStringDelegate>("OgaSetLogString");
+        return method(name, value);
+    }
+
+    private delegate void OgaDestroyResultDelegate(IntPtr /* OgaResult* */ result);
+    public void OgaDestroyResult(IntPtr /* OgaResult* */ result)
+    {
+        var method = GetNativeMethod<OgaDestroyResultDelegate>("OgaDestroyResult");
+        method(result);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateModelDelegate(byte[] /* const char* */ configPath, out IntPtr /* OgaModel** */ model);
+    public IntPtr /* OgaResult* */ OgaCreateModel(byte[] /* const char* */ configPath, out IntPtr /* OgaModel** */ model)
+    {
+        var method = GetNativeMethod<OgaCreateModelDelegate>("OgaCreateModel");
+        return method(configPath, out model);
+    }
+
+    private delegate void OgaDestroyModelDelegate(IntPtr /* OgaModel* */ model);
+    public void OgaDestroyModel(IntPtr /* OgaModel* */ model)
+    {
+        var method = GetNativeMethod<OgaDestroyModelDelegate>("OgaDestroyModel");
+        method(model);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateGeneratorParamsDelegate(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaGeneratorParams** */ generatorParams);
+    public IntPtr /* OgaResult* */ OgaCreateGeneratorParams(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaGeneratorParams** */ generatorParams)
+    {
+        var method = GetNativeMethod<OgaCreateGeneratorParamsDelegate>("OgaCreateGeneratorParams");
+        return method(model, out generatorParams);
+    }
+
+    private delegate void OgaDestroyGeneratorParamsDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams);
+    public void OgaDestroyGeneratorParams(IntPtr /* OgaGeneratorParams* */ generatorParams)
+    {
+        var method = GetNativeMethod<OgaDestroyGeneratorParamsDelegate>("OgaDestroyGeneratorParams");
+        method(generatorParams);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetSearchNumberDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ searchOption, double value);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsSetSearchNumber(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ searchOption, double value)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetSearchNumberDelegate>("OgaGeneratorParamsSetSearchNumber");
+        return method(generatorParams, searchOption, value);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetSearchBoolDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ searchOption, bool value);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsSetSearchBool(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ searchOption, bool value)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetSearchBoolDelegate>("OgaGeneratorParamsSetSearchBool");
+        return method(generatorParams, searchOption, value);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsTryGraphCaptureWithMaxBatchSizeDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, int /* int32_t */ maxBatchSize);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsTryGraphCaptureWithMaxBatchSize(IntPtr /* OgaGeneratorParams* */ generatorParams, int /* int32_t */ maxBatchSize)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsTryGraphCaptureWithMaxBatchSizeDelegate>("OgaGeneratorParamsTryGraphCaptureWithMaxBatchSize");
+        return method(generatorParams, maxBatchSize);
+    }
+
+    private unsafe delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputIDsDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, int* /* const int32_t* */ inputIDs, UIntPtr /* size_t */ inputIDsCount, UIntPtr /* size_t */ sequenceLength, UIntPtr /* size_t */ batchSize);
+    public unsafe IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputIDs(IntPtr /* OgaGeneratorParams* */ generatorParams, int* /* const int32_t* */ inputIDs, UIntPtr /* size_t */ inputIDsCount, UIntPtr /* size_t */ sequenceLength, UIntPtr /* size_t */ batchSize)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetInputIDsDelegate>("OgaGeneratorParamsSetInputIDs");
+        return method(generatorParams, inputIDs, inputIDsCount, sequenceLength, batchSize);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputSequencesDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, IntPtr /* const OgaSequences* */ sequences);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputSequences(IntPtr /* OgaGeneratorParams* */ generatorParams, IntPtr /* const OgaSequences* */ sequences)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetInputSequencesDelegate>("OgaGeneratorParamsSetInputSequences");
+        return method(generatorParams, sequences);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetModelInputDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ name, IntPtr /* const OgaTensor* */ tensor);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsSetModelInput(IntPtr /* OgaGeneratorParams* */ generatorParams, byte[] /* const char* */ name, IntPtr /* const OgaTensor* */ tensor)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetModelInputDelegate>("OgaGeneratorParamsSetModelInput");
+        return method(generatorParams, name, tensor);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputsDelegate(IntPtr /* OgaGeneratorParams* */ generatorParams, IntPtr /* const OgaNamedTensors* */ namedTensors);
+    public IntPtr /* OgaResult* */ OgaGeneratorParamsSetInputs(IntPtr /* OgaGeneratorParams* */ generatorParams, IntPtr /* const OgaNamedTensors* */ namedTensors)
+    {
+        var method = GetNativeMethod<OgaGeneratorParamsSetInputsDelegate>("OgaGeneratorParamsSetInputs");
+        return method(generatorParams, namedTensors);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateGeneratorDelegate(IntPtr /* const OgaModel* */ model, IntPtr /* const OgaGeneratorParams* */ generatorParams, out IntPtr /* OgaGenerator** */ generator);
+    public IntPtr /* OgaResult* */ OgaCreateGenerator(IntPtr /* const OgaModel* */ model, IntPtr /* const OgaGeneratorParams* */ generatorParams, out IntPtr /* OgaGenerator** */ generator)
+    {
+        var method = GetNativeMethod<OgaCreateGeneratorDelegate>("OgaCreateGenerator");
+        return method(model, generatorParams, out generator);
+    }
+
+    private delegate void OgaDestroyGeneratorDelegate(IntPtr /* OgaGenerator* */ generator);
+    public void OgaDestroyGenerator(IntPtr /* OgaGenerator* */ generator)
+    {
+        var method = GetNativeMethod<OgaDestroyGeneratorDelegate>("OgaDestroyGenerator");
+        method(generator);
+    }
+
+    private delegate bool OgaGenerator_IsDoneDelegate(IntPtr /* const OgaGenerator* */ generator);
+    public bool OgaGenerator_IsDone(IntPtr /* const OgaGenerator* */ generator)
+    {
+        var method = GetNativeMethod<OgaGenerator_IsDoneDelegate>("OgaGenerator_IsDone");
+        return method(generator);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGenerator_ComputeLogitsDelegate(IntPtr /* OgaGenerator* */ generator);
+    public IntPtr /* OgaResult* */ OgaGenerator_ComputeLogits(IntPtr /* OgaGenerator* */ generator)
+    {
+        var method = GetNativeMethod<OgaGenerator_ComputeLogitsDelegate>("OgaGenerator_ComputeLogits");
+        return method(generator);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGenerator_GenerateNextTokenDelegate(IntPtr /* OgaGenerator* */ generator);
+    public IntPtr /* OgaResult* */ OgaGenerator_GenerateNextToken(IntPtr /* OgaGenerator* */ generator)
+    {
+        var method = GetNativeMethod<OgaGenerator_GenerateNextTokenDelegate>("OgaGenerator_GenerateNextToken");
+        return method(generator);
+    }
+
+    private delegate UIntPtr /* size_t */ OgaGenerator_GetSequenceCountDelegate(IntPtr /* const OgaGenerator* */ generator, UIntPtr /* size_t */ index);
+    public UIntPtr /* size_t */ OgaGenerator_GetSequenceCount(IntPtr /* const OgaGenerator* */ generator, UIntPtr /* size_t */ index)
+    {
+        var method = GetNativeMethod<OgaGenerator_GetSequenceCountDelegate>("OgaGenerator_GetSequenceCount");
+        return method(generator, index);
+    }
+
+    private delegate IntPtr /* const in32_t* */ OgaGenerator_GetSequenceDataDelegate(IntPtr /* const OgaGenerator* */ generator, UIntPtr /* size_t */ index);
+    public IntPtr /* const in32_t* */ OgaGenerator_GetSequenceData(IntPtr /* const OgaGenerator* */ generator, UIntPtr /* size_t */ index)
+    {
+        var method = GetNativeMethod<OgaGenerator_GetSequenceDataDelegate>("OgaGenerator_GetSequenceData");
+        return method(generator, index);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateSequencesDelegate(out IntPtr /* OgaSequences** */ sequences);
+    public IntPtr /* OgaResult* */ OgaCreateSequences(out IntPtr /* OgaSequences** */ sequences)
+    {
+        var method = GetNativeMethod<OgaCreateSequencesDelegate>("OgaCreateSequences");
+        return method(out sequences);
+    }
+
+    private delegate void OgaDestroySequencesDelegate(IntPtr /* OgaSequences* */ sequences);
+    public void OgaDestroySequences(IntPtr /* OgaSequences* */ sequences)
+    {
+        var method = GetNativeMethod<OgaDestroySequencesDelegate>("OgaDestroySequences");
+        method(sequences);
+    }
+
+    private delegate UIntPtr OgaSequencesCountDelegate(IntPtr /* const OgaSequences* */ sequences);
+    public UIntPtr OgaSequencesCount(IntPtr /* const OgaSequences* */ sequences)
+    {
+        var method = GetNativeMethod<OgaSequencesCountDelegate>("OgaSequencesCount");
+        return method(sequences);
+    }
+
+    private delegate UIntPtr OgaSequencesGetSequenceCountDelegate(IntPtr /* const OgaSequences* */ sequences, UIntPtr /* size_t */ sequenceIndex);
+    public UIntPtr OgaSequencesGetSequenceCount(IntPtr /* const OgaSequences* */ sequences, UIntPtr /* size_t */ sequenceIndex)
+    {
+        var method = GetNativeMethod<OgaSequencesGetSequenceCountDelegate>("OgaSequencesGetSequenceCount");
+        return method(sequences, sequenceIndex);
+    }
+
+    private delegate IntPtr /* const int32_t* */ OgaSequencesGetSequenceDataDelegate(IntPtr /* const OgaSequences* */ sequences, UIntPtr /* size_t */ sequenceIndex);
+    public IntPtr /* const int32_t* */ OgaSequencesGetSequenceData(IntPtr /* const OgaSequences* */ sequences, UIntPtr /* size_t */ sequenceIndex)
+    {
+        var method = GetNativeMethod<OgaSequencesGetSequenceDataDelegate>("OgaSequencesGetSequenceData");
+        return method(sequences, sequenceIndex);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGenerateDelegate(IntPtr /* const OgaModel* */ model, IntPtr /* const OgaGeneratorParams* */ generatorParams, out IntPtr /* OgaSequences** */ sequences);
+    public IntPtr /* OgaResult* */ OgaGenerate(IntPtr /* const OgaModel* */ model, IntPtr /* const OgaGeneratorParams* */ generatorParams, out IntPtr /* OgaSequences** */ sequences)
+    {
+        var method = GetNativeMethod<OgaGenerateDelegate>("OgaGenerate");
+        return method(model, generatorParams, out sequences);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateTokenizerDelegate(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaTokenizer** */ tokenizer);
+    public IntPtr /* OgaResult* */ OgaCreateTokenizer(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaTokenizer** */ tokenizer)
+    {
+        var method = GetNativeMethod<OgaCreateTokenizerDelegate>("OgaCreateTokenizer");
+        return method(model, out tokenizer);
+    }
+
+    private delegate void OgaDestroyTokenizerDelegate(IntPtr /* OgaTokenizer* */ tokenizer);
+    public void OgaDestroyTokenizer(IntPtr /* OgaTokenizer* */ tokenizer)
+    {
+        var method = GetNativeMethod<OgaDestroyTokenizerDelegate>("OgaDestroyTokenizer");
+        method(tokenizer);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTokenizerEncodeDelegate(IntPtr /* const OgaTokenizer* */ tokenizer, byte[] /* const char* */ strings, IntPtr /* OgaSequences* */ sequences);
+    public IntPtr /* OgaResult* */ OgaTokenizerEncode(IntPtr /* const OgaTokenizer* */ tokenizer, byte[] /* const char* */ strings, IntPtr /* OgaSequences* */ sequences)
+    {
+        var method = GetNativeMethod<OgaTokenizerEncodeDelegate>("OgaTokenizerEncode");
+        return method(tokenizer, strings, sequences);
+    }
+
+    private unsafe delegate IntPtr /* OgaResult* */ OgaTokenizerDecodeDelegate(IntPtr /* const OgaTokenizer* */ tokenizer, int* /* const int32_t* */ sequence, UIntPtr /* size_t */ sequenceLength, out IntPtr /* const char** */ outStr);
+    public unsafe IntPtr /* OgaResult* */ OgaTokenizerDecode(IntPtr /* const OgaTokenizer* */ tokenizer, int* /* const int32_t* */ sequence, UIntPtr /* size_t */ sequenceLength, out IntPtr /* const char** */ outStr)
+    {
+        var method = GetNativeMethod<OgaTokenizerDecodeDelegate>("OgaTokenizerDecode");
+        return method(tokenizer, sequence, sequenceLength, out outStr);
+    }
+
+    private delegate void OgaDestroyStringDelegate(IntPtr /* const char* */ str);
+    public void OgaDestroyString(IntPtr /* const char* */ str)
+    {
+        var method = GetNativeMethod<OgaDestroyStringDelegate>("OgaDestroyString");
+        method(str);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateTokenizerStreamDelegate(IntPtr /* const OgaTokenizer* */ tokenizer, out IntPtr /* OgaTokenizerStream** */ tokenizerStream);
+    public IntPtr /* OgaResult* */ OgaCreateTokenizerStream(IntPtr /* const OgaTokenizer* */ tokenizer, out IntPtr /* OgaTokenizerStream** */ tokenizerStream)
+    {
+        var method = GetNativeMethod<OgaCreateTokenizerStreamDelegate>("OgaCreateTokenizerStream");
+        return method(tokenizer, out tokenizerStream);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateTokenizerStreamFromProcessorDelegate(IntPtr /* const OgaMultiModalProcessor* */ processor, out IntPtr /* OgaTokenizerStream** */ tokenizerStream);
+    public IntPtr /* OgaResult* */ OgaCreateTokenizerStreamFromProcessor(IntPtr /* const OgaMultiModalProcessor* */ processor, out IntPtr /* OgaTokenizerStream** */ tokenizerStream)
+    {
+        var method = GetNativeMethod<OgaCreateTokenizerStreamFromProcessorDelegate>("OgaCreateTokenizerStreamFromProcessor");
+        return method(processor, out tokenizerStream);
+    }
+
+    private delegate void OgaDestroyTokenizerStreamDelegate(IntPtr /* OgaTokenizerStream* */ tokenizerStream);
+    public void OgaDestroyTokenizerStream(IntPtr /* OgaTokenizerStream* */ tokenizerStream)
+    {
+        var method = GetNativeMethod<OgaDestroyTokenizerStreamDelegate>("OgaDestroyTokenizerStream");
+        method(tokenizerStream);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTokenizerStreamDecodeDelegate(IntPtr /* const OgaTokenizerStream* */ tokenizerStream, int /* int32_t */ token, out IntPtr /* const char** */ outStr);
+    public IntPtr /* OgaResult* */ OgaTokenizerStreamDecode(IntPtr /* const OgaTokenizerStream* */ tokenizerStream, int /* int32_t */ token, out IntPtr /* const char** */ outStr)
+    {
+        var method = GetNativeMethod<OgaTokenizerStreamDecodeDelegate>("OgaTokenizerStreamDecode");
+        return method(tokenizerStream, token, out outStr);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateTensorFromBufferDelegate(IntPtr /* data* */ data, long[] shapeDims, UIntPtr shapeDimsCount, ElementType elementType, out IntPtr /* OgaTensor** */ tensor);
+    public IntPtr /* OgaResult* */ OgaCreateTensorFromBuffer(IntPtr /* data* */ data, long[] shapeDims, UIntPtr shapeDimsCount, ElementType elementType, out IntPtr /* OgaTensor** */ tensor)
+    {
+        var method = GetNativeMethod<OgaCreateTensorFromBufferDelegate>("OgaCreateTensorFromBuffer");
+        return method(data, shapeDims, shapeDimsCount, elementType, out tensor);
+    }
+
+    private delegate void OgaDestroyTensorDelegate(IntPtr /* OgaTensor * */ tensor);
+    public void OgaDestroyTensor(IntPtr /* OgaTensor * */ tensor)
+    {
+        var method = GetNativeMethod<OgaDestroyTensorDelegate>("OgaDestroyTensor");
+        method(tensor);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTensorGetTypeDelegate(IntPtr /* OgaTensor * */ tensor, out ElementType elementType);
+    public IntPtr /* OgaResult* */ OgaTensorGetType(IntPtr /* OgaTensor * */ tensor, out ElementType elementType)
+    {
+        var method = GetNativeMethod<OgaTensorGetTypeDelegate>("OgaTensorGetType");
+        return method(tensor, out elementType);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTensorGetShapeRankDelegate(IntPtr /* OgaTensor * */ tensor, out UIntPtr rank);
+    public IntPtr /* OgaResult* */ OgaTensorGetShapeRank(IntPtr /* OgaTensor * */ tensor, out UIntPtr rank)
+    {
+        var method = GetNativeMethod<OgaTensorGetShapeRankDelegate>("OgaTensorGetShapeRank");
+        return method(tensor, out rank);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTensorGetShapeDelegate(IntPtr /* OgaTensor * */ tensor, long[] shapeDims, UIntPtr /* size_t */ shapeDimsCount);
+    public IntPtr /* OgaResult* */ OgaTensorGetShape(IntPtr /* OgaTensor * */ tensor, long[] shapeDims, UIntPtr /* size_t */ shapeDimsCount)
+    {
+        var method = GetNativeMethod<OgaTensorGetShapeDelegate>("OgaTensorGetShape");
+        return method(tensor, shapeDims, shapeDimsCount);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaTensorGetDataDelegate(IntPtr /* OgaTensor * */ tensor, out IntPtr /* void* */ data);
+    public IntPtr /* OgaResult* */ OgaTensorGetData(IntPtr /* OgaTensor * */ tensor, out IntPtr /* void* */ data)
+    {
+        var method = GetNativeMethod<OgaTensorGetDataDelegate>("OgaTensorGetData");
+        return method(tensor, out data);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaSetCurrentGpuDeviceIdDelegate(int /* int32_t */ deviceId);
+    public IntPtr /* OgaResult* */ OgaSetCurrentGpuDeviceId(int /* int32_t */ deviceId)
+    {
+        var method = GetNativeMethod<OgaSetCurrentGpuDeviceIdDelegate>("OgaSetCurrentGpuDeviceId");
+        return method(deviceId);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaGetCurrentGpuDeviceIdDelegate(out IntPtr /* int32_t */ deviceId);
+    public IntPtr /* OgaResult* */ OgaGetCurrentGpuDeviceId(out IntPtr /* int32_t */ deviceId)
+    {
+        var method = GetNativeMethod<OgaGetCurrentGpuDeviceIdDelegate>("OgaGetCurrentGpuDeviceId");
+        return method(out deviceId);
+    }
+
+    private delegate void OgaShutdownDelegate();
+    public void OgaShutdown()
+    {
+        var method = GetNativeMethod<OgaShutdownDelegate>("OgaShutdown");
+        method();
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateMultiModalProcessorDelegate(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaMultiModalProcessor** */ processor);
+    public IntPtr /* OgaResult* */ OgaCreateMultiModalProcessor(IntPtr /* const OgaModel* */ model, out IntPtr /* OgaMultiModalProcessor** */ processor)
+    {
+        var method = GetNativeMethod<OgaCreateMultiModalProcessorDelegate>("OgaCreateMultiModalProcessor");
+        return method(model, out processor);
+    }
+
+    private delegate void OgaDestroyMultiModalProcessorDelegate(IntPtr /* OgaMultiModalProcessor* */ processor);
+    public void OgaDestroyMultiModalProcessor(IntPtr /* OgaMultiModalProcessor* */ processor)
+    {
+        var method = GetNativeMethod<OgaDestroyMultiModalProcessorDelegate>("OgaDestroyMultiModalProcessor");
+        method(processor);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaProcessorProcessImagesDelegate(IntPtr /* const OgaMultiModalProcessor* */ processor, byte[] /* const char* */ prompt, IntPtr /* const Images* */ images, out IntPtr /* OgaNamedTensors** */ namedTensors);
+    public IntPtr /* OgaResult* */ OgaProcessorProcessImages(IntPtr /* const OgaMultiModalProcessor* */ processor, byte[] /* const char* */ prompt, IntPtr /* const Images* */ images, out IntPtr /* OgaNamedTensors** */ namedTensors)
+    {
+        var method = GetNativeMethod<OgaProcessorProcessImagesDelegate>("OgaProcessorProcessImages");
+        return method(processor, prompt, images, out namedTensors);
+    }
+
+    private unsafe delegate IntPtr /* OgaResult* */ OgaProcessorDecodeDelegate(IntPtr /* const OgaMultiModalProcessor* */ processor, int* /* const int32_t* */ sequence, UIntPtr /* size_t */ sequenceLength, out IntPtr /* const char** */ outStr);
+    public unsafe IntPtr /* OgaResult* */ OgaProcessorDecode(IntPtr /* const OgaMultiModalProcessor* */ processor, int* /* const int32_t* */ sequence, UIntPtr /* size_t */ sequenceLength, out IntPtr /* const char** */ outStr)
+    {
+        var method = GetNativeMethod<OgaProcessorDecodeDelegate>("OgaProcessorDecode");
+        return method(processor, sequence, sequenceLength, out outStr);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaLoadImagesDelegate(IntPtr /* const OgaStringArray* */ imagePaths, out IntPtr /* const OgaImages** */ images);
+    public IntPtr /* OgaResult* */ OgaLoadImages(IntPtr /* const OgaStringArray* */ imagePaths, out IntPtr /* const OgaImages** */ images)
+    {
+        var method = GetNativeMethod<OgaLoadImagesDelegate>("OgaLoadImages");
+        return method(imagePaths, out images);
+    }
+
+    private delegate void OgaDestroyImagesDelegate(IntPtr /* OgaImages* */ images);
+    public void OgaDestroyImages(IntPtr /* OgaImages* */ images)
+    {
+        var method = GetNativeMethod<OgaDestroyImagesDelegate>("OgaDestroyImages");
+        method(images);
+    }
+
+    private delegate void OgaDestroyNamedTensorsDelegate(IntPtr /* OgaNamedTensors* */ namedTensors);
+    public void OgaDestroyNamedTensors(IntPtr /* OgaNamedTensors* */ namedTensors)
+    {
+        var method = GetNativeMethod<OgaDestroyNamedTensorsDelegate>("OgaDestroyNamedTensors");
+        method(namedTensors);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaCreateStringArrayDelegate(out IntPtr /* OgaStringArray** */ stringArray);
+    public IntPtr /* OgaResult* */ OgaCreateStringArray(out IntPtr /* OgaStringArray** */ stringArray)
+    {
+        var method = GetNativeMethod<OgaCreateStringArrayDelegate>("OgaCreateStringArray");
+        return method(out stringArray);
+    }
+
+    private delegate IntPtr /* OgaResult* */ OgaStringArrayAddStringDelegate(IntPtr /* OgaStringArray* */ stringArray, byte[] /* const char* */ str);
+    public IntPtr /* OgaResult* */ OgaStringArrayAddString(IntPtr /* OgaStringArray* */ stringArray, byte[] /* const char* */ str)
+    {
+        var method = GetNativeMethod<OgaStringArrayAddStringDelegate>("OgaStringArrayAddString");
+        return method(stringArray, str);
+    }
+
+    private delegate void OgaDestroyStringArrayDelegate(IntPtr /* OgaStringArray* */ stringArray);
+    public void OgaDestroyStringArray(IntPtr /* OgaStringArray* */ stringArray)
+    {
+        var method = GetNativeMethod<OgaDestroyStringArrayDelegate>("OgaDestroyStringArray");
+        method(stringArray);
+    }
+}
 }
