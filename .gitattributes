@@ -57,5 +57,5 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
-MagicOnnxRuntimeGenAi/cuda/runtimes/win-x64/native/onnxruntime_providers_cuda.dll filter=lfs diff=lfs merge=lfs -text
-MagicOnnxRuntimeGenAi/cuda/runtimes/linux-x64/native/libonnxruntime_providers_cuda.so filter=lfs diff=lfs merge=lfs -text
+MagicOnnxRuntimeGenAi.Cuda/cuda/runtimes/win-x64/native/onnxruntime_providers_cuda.dll filter=lfs diff=lfs merge=lfs -text
+MagicOnnxRuntimeGenAi.Cuda/cuda/runtimes/linux-x64/native/libonnxruntime_providers_cuda.so filter=lfs diff=lfs merge=lfs -text
