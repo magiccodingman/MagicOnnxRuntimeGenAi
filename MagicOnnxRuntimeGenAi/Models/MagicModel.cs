@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using MagicOnnxRuntimeGenAi.Helpers;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 
@@ -20,6 +21,17 @@ namespace MagicOnnxRuntimeGenAi
         {
             modelPath = _modelPath;
             hardwareType = GetHardwareType();
+
+            if (hardwareType == HardwareType.cuda)
+            {
+                Console.WriteLine("Cuda!");
+                new GetCriticalFiles().DownloadCriticalCudaFiles(); // Ensure single instance of download
+            }
+            else
+            {
+                Console.WriteLine("No Cuda!");
+            }
+
             _MagicNativeMethods = new MagicNativeMethods(hardwareType);
             new MagicResult(_MagicNativeMethods).VerifySuccess(_MagicNativeMethods.OgaCreateModel(MagicStringUtils.ToUtf8(_modelPath), out _modelHandle));
         }
