@@ -7,7 +7,7 @@
 	  <LangVersion>preview</LangVersion>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <Description>OnnxRuntimeGenAI.CPU variant that removes the limitation of not being able to use CPU, Cuda, and DirectML at once.</Description>
-	  <Version>0.4.0.2</Version>
+	  <Version>0.4.0.3</Version>
 	  <Title>MagicOnnxRuntimeGenAi.Cpu</Title>
 	  <PackageProjectUrl>https://github.com/magiccodingman/MagicOnnxRuntimeGenAi</PackageProjectUrl>
 	  <PackageIcon>nugetIcon.jpeg</PackageIcon>
