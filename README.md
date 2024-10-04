@@ -9,7 +9,7 @@ https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cpu/0.4.0.2
 DirectML:
 https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.2
 
-Cuda:
+Cuda: (Still being worked on. The 0.4.0.1 release isn't fully working. The 0.4.0.2 will be a working version)
 https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cuda/0.4.0.2
 
 ## Features
