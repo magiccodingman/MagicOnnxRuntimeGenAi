@@ -361,3 +361,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Test.MagicOnnxRuntimeGenAi.CLI/Test.MagicOnnxRuntimeGenAi.CLI.csproj
