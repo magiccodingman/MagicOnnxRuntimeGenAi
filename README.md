@@ -12,6 +12,9 @@ https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.2
 Cuda: (Still being worked on. The 0.4.0.1 release isn't fully working. The 0.4.0.2 will be a working version)
 https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cuda/0.4.0.2
 
+The main Cuda DLL's I'll be hosting on HuggingFace. These files will download in runtime due to free storage limitations. Plus maybe that's the better way anyways. It's the exact DLL's from Microsoft. You can use Microsofts official ones for the OnnxRuntimeGenAI library if you'd like, just go to their github:
+https://huggingface.co/datasets/magiccodingman/MagicOnnxRuntimeGenAI
+
 ## Features
 
 - **Multi-hardware support**: Run CPU, CUDA, and DirectML versions in parallel, enabling better performance scaling across platforms.
