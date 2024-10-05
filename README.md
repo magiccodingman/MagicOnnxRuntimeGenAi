@@ -8,6 +8,8 @@ When using the `MagicOnnxRuntimeGenAi` packages, you may need to manually config
 
 I'm still trying to figure out how to make this part deploy automatically but until then.
 
+**NUGET ISSUES** are very real. I have no idea what's going on, but there's very odd quirks when using the code via nuget. Even when the environment should work identical, I'm having various issues that cannot be reproduced in the native solution environment. I'll work out the kinks over time, but if you want a more seamless experience. It's best you clone down the projects necessary to your project. Will be annoying to update them, but I apologize. I do this for free and as a hobby. I can only dedicate but so much time and effort to open sourcing. This annoys me as well.
+
 #### 1. Setting Up the CPU Package
 
 CPU:
