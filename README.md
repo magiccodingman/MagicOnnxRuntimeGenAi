@@ -2,7 +2,7 @@
 
 **MagicOnnxRuntimeGenAI** is an extension of the `Microsoft.ML.OnnxRuntimeGenAI` library that removes the limitations associated with hardware utilization and platform compatibility. It allows you to run multiple AI models on different hardware environments (CPU, CUDA, DirectML) simultaneously in a single instance, solving the original library’s constraint of choosing only one type of hardware at a time. The goal is to maintain code similarity with the original library, while enhancing flexibility and scalability.
 
-### Nuget
+### Nuget (Nuget version is bugged)
 
 When using the `MagicOnnxRuntimeGenAi` packages, you may need to manually configure the output settings in your project file (`.csproj`). The following instructions outline how to correctly set up the configurations for CPU, CUDA, and DirectML packages.
 
