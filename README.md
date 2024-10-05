@@ -77,7 +77,7 @@ For DirectML support:
 2. Add the following `ItemGroup` elements to include the DirectML files:
    ```xml
    <ItemGroup>
-       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\dml\**\*"> 
+       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\dml\dml\**\*"> 
            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
            <Link>dml\%(RecursiveDir)%(FileName)%(Extension)</Link> 
        </None>
