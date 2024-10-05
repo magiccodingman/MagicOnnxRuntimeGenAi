@@ -3,20 +3,102 @@
 **MagicOnnxRuntimeGenAI** is an extension of the `Microsoft.ML.OnnxRuntimeGenAI` library that removes the limitations associated with hardware utilization and platform compatibility. It allows you to run multiple AI models on different hardware environments (CPU, CUDA, DirectML) simultaneously in a single instance, solving the original library’s constraint of choosing only one type of hardware at a time. The goal is to maintain code similarity with the original library, while enhancing flexibility and scalability.
 
 ### Nuget
+
+When using the `MagicOnnxRuntimeGenAi` packages, you may need to manually configure the output settings in your project file (`.csproj`). The following instructions outline how to correctly set up the configurations for CPU, CUDA, and DirectML packages.
+
+I'm still trying to figure out how to make this part deploy automatically but until then.
+
+#### 1. Setting Up the CPU Package
+
 CPU:
 https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cpu/0.4.0.3
 
-DirectML:
-https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.3
+To set up the `MagicOnnxRuntimeGenAi.Cpu` package:
+
+1. Locate the `PackageReference` for `MagicOnnxRuntimeGenAi.Cpu` in your `.csproj` file.
+   ```xml
+   <PackageReference Include="MagicOnnxRuntimeGenAi.Cpu" Version="VersionNumber" GeneratePathProperty="true" />
+   ```
+   Make sure that `GeneratePathProperty="true"` is included, as shown above.
+
+2. Add the following `ItemGroup` to the bottom of your `.csproj` file to copy the required CPU files:
+   ```xml
+   <ItemGroup>
+       <None Include="$(PkgMagiconnxruntimegenai_cpu)\contentFiles\any\any\cpu\**\*">
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+           <Link>cpu\%(RecursiveDir)%(FileName)%(Extension)</Link>
+       </None>
+   </ItemGroup>
+   ```
+
+#### 2. Setting Up the CUDA Package
 
 Cuda:
 https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.Cuda/0.4.0.3
 
 The main Cuda DLL's I'll be hosting on HuggingFace. These files will download in runtime due to free storage limitations. Plus maybe that's the better way anyways. It's the exact DLL's from Microsoft. You can use Microsofts official ones for the OnnxRuntimeGenAI library if you'd like, just go to their github:
 
+
 Microsoft GenAI Github: https://github.com/microsoft/onnxruntime-genai
 
 My HuggingFace Dataset hosted DLLs: https://huggingface.co/datasets/magiccodingman/MagicOnnxRuntimeGenAI
+
+
+If using the CUDA package, follow these steps:
+
+1. Locate the `PackageReference` for `MagicOnnxRuntimeGenAi.Cuda`.
+   ```xml
+   <PackageReference Include="MagicOnnxRuntimeGenAi.Cuda" Version="VersionNumber" GeneratePathProperty="true" />
+   ```
+   Again, make sure to include `GeneratePathProperty="true"` in the reference.
+
+2. Add the following `ItemGroup` at the bottom of your `.csproj` file to copy the necessary CUDA files:
+   ```xml
+   <ItemGroup>
+       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\cuda\**\*"> 
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+           <Link>cuda\%(RecursiveDir)%(FileName)%(Extension)</Link> 
+       </None>
+   </ItemGroup>
+   ```
+
+#### 3. Setting Up the DirectML Package
+
+DirectML:
+https://www.nuget.org/packages/MagicOnnxRuntimeGenAi.DirectML/0.4.0.3
+
+For DirectML support:
+
+1. Locate the `PackageReference` for `MagicOnnxRuntimeGenAi.DirectML` and ensure it includes `GeneratePathProperty="true"`.
+   ```xml
+   <PackageReference Include="MagicOnnxRuntimeGenAi.DirectML" Version="VersionNumber" GeneratePathProperty="true" />
+   ```
+
+2. Add the following `ItemGroup` elements to include the DirectML files:
+   ```xml
+   <ItemGroup>
+       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\dml\**\*"> 
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+           <Link>dml\%(RecursiveDir)%(FileName)%(Extension)</Link> 
+       </None>
+   </ItemGroup>
+   
+   <ItemGroup>
+       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\D3D12Core.dll">
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </None>
+   </ItemGroup>
+   
+   <ItemGroup>
+       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\DirectML.dll">
+           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+       </None>
+   </ItemGroup>
+   ```
+
+
+### Setup
+Currently I've not figured out how to make the nuget package properly output the files to the directory as needed. If you install the CPU nuget package, please add the following to your 
 
 ## Features
 
