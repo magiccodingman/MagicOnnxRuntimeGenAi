@@ -55,7 +55,7 @@ If using the CUDA package, follow these steps:
 2. Add the following `ItemGroup` at the bottom of your `.csproj` file to copy the necessary CUDA files:
    ```xml
    <ItemGroup>
-       <None Include="$(PkgMagiconnxruntimegenai_directml)\contentFiles\any\any\cuda\**\*"> 
+       <None Include="$(PkgMagiconnxruntimegenai_cuda)\contentFiles\any\any\cuda\**\*"> 
            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
            <Link>cuda\%(RecursiveDir)%(FileName)%(Extension)</Link> 
        </None>
