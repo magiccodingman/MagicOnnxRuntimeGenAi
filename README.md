@@ -3,9 +3,7 @@
 **MagicOnnxRuntimeGenAI** is an extension of the `Microsoft.ML.OnnxRuntimeGenAI` library that removes the limitations associated with hardware utilization and platform compatibility. It allows you to run multiple AI models on different hardware environments (CPU, CUDA, DirectML) simultaneously in a single instance, solving the original library’s constraint of choosing only one type of hardware at a time. The goal is to maintain code similarity with the original library, while enhancing flexibility and scalability.
 
 ## Setup
-I will be making a setup guide in the near future. I've had a great deal of headache getting NuGet to work. Even when configured to add the necessary DLL's in the output directory. For the life of me, I cannot get the code to work exactly correct. Thing begin to fail when they should not. I have bugs that I cannot replicate at all within the native solution. For example. If I load a model with CPU first then DirectML utilizing the NuGet package. This will cause a massive error. But if you run DirectML first then CPU and then dispose and then do CPU then DirectML, the issue no longer persists. Yet I cannot replicate this issue at all in any unit test within the native solution environment. Not even mentioning the build package issues I'm having.
-
-I'll be working this out, but I'll likely be making zipped versions of the projects you'd need to import or update manually as necessary. I'll work on getting a NuGet package working in time. I try to do this as a hobby and for fun. But good lord this process annoyed me more than any other. If you have ideas as to how to fix the issue or care to help. Please get in contact with me, I'm more than happy to recieve support.
+I will be making a setup guide in the near future. NuGet package has these odd issues. For example if I do DML first then CPU, everything works. If I do CPU then DML it doesn't work. But I cannot replicate this issue outside the origin solution. It's extremely odd.
 
 ## Features
 
@@ -139,7 +137,7 @@ public async Task Phi3MiniDmlAndCpuResponse()
 - **New Projects**: Future projects will build on this, making AI easier to use with higher-level abstractions.
 
 
-### Nuget (Nuget version is bugged) DO NOT USE
+### Nuget (Nuget version working on some quirks)
 
 When using the `MagicOnnxRuntimeGenAi` packages, you may need to manually configure the output settings in your project file (`.csproj`). The following instructions outline how to correctly set up the configurations for CPU, CUDA, and DirectML packages.
 
