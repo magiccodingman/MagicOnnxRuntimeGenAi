@@ -13,6 +13,20 @@ But either way, the hopes is that OnnxRuntime and OnnxRuntimeGenAI are updated i
 
 **The largest issue to me when it comes to AI** is not that AI isn't powerful enough today. The issue today is the integration gap between development and AI itself. We truly have world changing, life altering power with AI right now. But to properly integrate and utilize AI within our desired applications, now that's the issue at hand!
 
+## The Goals
+1.)   [Already Developed] Change the OnnxRuntimeGenAI library protocol to not limit your project to only a single hardware type. As this is a massive oversight.
+
+2.)   [Paused] Change the OnnxRuntime library protocol similarly as the GenAI variant.
+- Paused working on this until I decide what the best path is. I may need to decompile DLL's to resolve quirks or wait for Microsoft to update these quirks out of the way.
+
+3.)   [Mostly developed] Code that grabs the current libraries and automatically converts them to my protocol that removes the limitations that frustrates me a lot.
+
+4.)   [Future Plan] Create a library on top of all of this which will add my own luxury methods. Making using AI models as simple as, “AskAI(question)”.
+
+5.)   [Future Plan] Easy GUI interface to grab and convert AI models automatically to the ONNX GenAI protocol. Therefore, making it very easy to pick an AI model and utilize it directly.
+
+6.)   [Future Plan] Easy GUI interface to test your AI models via unit testing and a chat window.
+
 ### Nuget
 
 When using the `MagicOnnxRuntimeGenAi` packages, you may need to manually configure the output settings in your project file (`.csproj`). The following instructions outline how to correctly set up the configurations for CPU, CUDA, and DirectML packages.
