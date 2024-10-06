@@ -6,7 +6,9 @@
 There are issues with this library and I'm unsure how to exactly fix them as of yet. This library is experimental, please keep that in mind. And very hopefully, it's also temporary. In my eyes, it's obvious the future of AI requires utilization of all hardware types within a single instance. Without it, there is no future with AI that's exactly easy. Nor without it can we see a future viable for many paths I believe many of us want. We'll see if such a prediction is right or not!
 
 But either way, the hopes is that OnnxRuntime and OnnxRuntimeGenAI are updated in the future to utilize all hardware options. This library re-organizes the code and changes interop code. But the DLL's are not altered at all. But the DLL's themselves have some quirks. Issues I've found are the following for example:
+
 1.) Loading CPU models first then DirectML models will cause the DirectML model load to fail. But if you do a DirectML model load first, then CPU, it works fine. Even if you dispose the DirectML and then do CPU, then DirectML, it'll work. Something about the CPU DLL memory useage when utilized first causes issues. I'm unsure as to why.
+
 2+ - I'm sure there will be more quirks found in the future. Please be weary of utilizing this code in production without your own thorough testing to verify it works for your circumstances reliably. I am doing this alone, for fun, and on the weekends. I made this library more as a proof of concept and showcase that this is possible. That a future with a single instance application with multiple AI models running across both CPU and GPU is a future we can access. 
 
 **The largest issue to me when it comes to AI** is not that AI isn't powerful enough today. The issue today is the integration gap between development and AI itself. We truly have world changing, life altering power with AI right now. But to properly integrate and utilize AI within our desired applications, now that's the issue at hand!
