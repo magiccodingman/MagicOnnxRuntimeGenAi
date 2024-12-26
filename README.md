@@ -142,9 +142,6 @@ The original `OnnxRuntimeGenAI` library imposes limitations on using hardware ac
 - Creating an ASP.NET REST API that manages multiple AI models across various hardware environments.
 - Maintaining flexibility and scalability while minimizing server-side dependencies, reducing latency, and improving control.
 
-# Experimental
-I'm still working on this documentation and work. Currently Cuda doesn't work and the documentation is wrong. The Nuget Packages are still a work in progress to get fully working as major aspects are currently missing. The best way to utilize and learn from this project at the moment is to download the entire source code and refer to the XUnit test project to see how things are working. THis is more a proof of concent than anything. It's not exactly stable either in a variety of scenarios. It's more meant to show that better DLL organization and a better interop architecture/protocol will serve the needs of developers significantly better.
-
 ### Library Structure
 
 The key libraries (`cpu`, `cuda`, `dml`) are separated into different folders, avoiding conflicts due to identical DLL names. This allows you to utilize all three in a single application. 
