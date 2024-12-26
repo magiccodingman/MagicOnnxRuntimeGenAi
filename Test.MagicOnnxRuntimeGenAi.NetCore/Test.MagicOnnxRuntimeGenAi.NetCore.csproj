@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MagicOnnxAi\MagicOnnxAi.csproj" />
     <ProjectReference Include="..\MagicOnnxRuntimeGenAi.Cpu\MagicOnnxRuntimeGenAi.Cpu.csproj" />
     <ProjectReference Include="..\MagicOnnxRuntimeGenAi.Cuda\MagicOnnxRuntimeGenAi.Cuda.csproj" />
     <ProjectReference Include="..\MagicOnnxRuntimeGenAi.DirectML\MagicOnnxRuntimeGenAi.DirectML.csproj" />

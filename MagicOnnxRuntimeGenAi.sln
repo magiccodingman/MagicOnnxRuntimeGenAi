@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnnxLibraryConverter", "Onn
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.MagicOnnxRuntimeGenAi.CLI", "Test.MagicOnnxRuntimeGenAi.CLI\Test.MagicOnnxRuntimeGenAi.CLI.csproj", "{B309E043-AD65-4362-993D-4EEBED8251A8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MagicOnnxAi", "MagicOnnxAi\MagicOnnxAi.csproj", "{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -193,6 +195,26 @@ Global
 		{B309E043-AD65-4362-993D-4EEBED8251A8}.Release|x64.Build.0 = Release|x64
 		{B309E043-AD65-4362-993D-4EEBED8251A8}.Release|x86.ActiveCfg = Release|x86
 		{B309E043-AD65-4362-993D-4EEBED8251A8}.Release|x86.Build.0 = Release|x86
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|ARM.Build.0 = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|x64.Build.0 = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Debug|x86.Build.0 = Debug|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|ARM.ActiveCfg = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|ARM.Build.0 = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|ARM64.Build.0 = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|x64.ActiveCfg = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|x64.Build.0 = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|x86.ActiveCfg = Release|Any CPU
+		{8EF29478-7A4F-49C7-9FC1-F051711EAAE8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
